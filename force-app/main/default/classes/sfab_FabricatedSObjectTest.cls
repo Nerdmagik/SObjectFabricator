@@ -55,4 +55,108 @@ private class sfab_FabricatedSObjectTest {
         fabricatedSObject.setChildren('Opportunites', new List<sfab_FabricatedSObject>());
         System.assertEquals(1, fabricatedSObject.nodes.size());
     }
+    
+    @isTest
+    static void itShouldReturnSObjectType() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+        system.assertEquals(User.SObjectType, fabricatedSObject.getSObjectType( User.class ));
+    }
+    
+    
+    @isTest
+    static void itShouldReturnSObjectTypeOfInstanceType()
+    {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+        system.assertEquals( Account.SObjectType, fabricatedSObject.getSObjectType() );
+    }
+    
+    
+    @isTest
+    static void itShouldReturnSObjectFieldType() {
+        sfab_FabricatedSObject fabricatedSObject = new sfab_FabricatedSObject( Account.class );
+        Schema.SObjectField idField = Account.Id.getDescribe().getSObjectField();
+        system.assertEquals( idField, fabricatedSObject.getSObjectField( 'Id' )  );
+    }
+    
+    
+    @isTest
+    static void itShouldSetTheIdFieldOfTheCurrentSObject()
+    {
+        Account acct = (Account) new sfab_FabricatedSObject( Account.class )
+          .setFakeId()
+          .toSObject();
+        
+        String strId = (String) acct.Id;
+    
+        system.assertEquals( 18, strId.length() );
+        system.assertEquals( '001', strId.left( 3 ) );
+        system.assertEquals( 'AAA', strId.right( 3 ) );
+        system.assertEquals( '000000000001', strId.mid( 3, 12 ) );
+    }
+    
+    
+    @isTest
+    static void itShouldSetTheIdOnARelationshipFieldUsingGenericType()
+    {
+        Account acct = (Account) new sfab_FabricatedSObject( Account.class )
+          .setFakeId( Account.OwnerId, User.class )
+          .toSObject();
+        
+        String strId = (String) acct.OwnerId;
+        
+        system.assertEquals( 18, strId.length() );
+        system.assertEquals( '005', strId.left( 3 ) );
+        system.assertEquals( 'AAA', strId.right( 3 ) );
+        system.assertEquals( '000000000001', strId.mid( 3, 12 ) );
+    }
+    
+    
+    @isTest
+    static void itShouldSetTheIdOnARelationshipFieldUsingSObjectType()
+    {
+        Account acct = (Account) new sfab_FabricatedSObject( Account.class )
+          .setFakeId( Account.OwnerId, User.class )
+          .toSObject();
+    
+        String strId = (String) acct.OwnerId;
+    
+        system.assertEquals( 18, strId.length() );
+        system.assertEquals( '005', strId.left( 3 ) );
+        system.assertEquals( 'AAA', strId.right( 3 ) );
+        system.assertEquals( '000000000001', strId.mid( 3, 12 ) );
+    }
+    
+    
+    @isTest
+    static void itShouldSetTimestampFields()
+    {
+        Account acct = (Account) new sfab_FabricatedSObject( Account.class )
+          .setTimestamps()
+          .toSObject();
+    
+        String strCreatedById = (String) acct.CreatedById;
+        String strModifiedById = (String) acct.LastModifiedById;
+        
+        system.assertEquals( '005', strCreatedById.left( 3 ) );
+        system.assertEquals( '005', strModifiedById.left( 3 ) );
+        system.assertEquals( Datetime.now(), acct.CreatedDate);
+        system.assertEquals( Datetime.now(), acct.LastModifiedDate);
+    }
+  
+  
+    @isTest
+    static void itShouldSetTimestampFieldsToSpecifiedDate()
+    {
+        Account acct = (Account) new sfab_FabricatedSObject( Account.class )
+          .setTimestamps(Datetime.now().addDays(-1))
+          .toSObject();
+        
+        String strCreatedById = (String) acct.CreatedById;
+        String strModifiedById = (String) acct.LastModifiedById;
+        
+        system.assertEquals( '005', strCreatedById.left( 3 ) );
+        system.assertEquals( '005', strModifiedById.left( 3 ) );
+        system.assertEquals( Datetime.now().addDays(-1), acct.CreatedDate );
+        system.assertEquals( Datetime.now().addDays( -1 ), acct.LastModifiedDate );
+    }
 }

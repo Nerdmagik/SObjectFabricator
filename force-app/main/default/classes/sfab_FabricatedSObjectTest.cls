@@ -115,7 +115,7 @@ private class sfab_FabricatedSObjectTest {
     static void itShouldSetTheIdOnARelationshipFieldUsingSObjectType()
     {
         Account acct = (Account) new sfab_FabricatedSObject( Account.class )
-          .setFakeId( Account.OwnerId, User.class )
+          .setFakeId( Account.OwnerId, User.SObjectType )
           .toSObject();
     
         String strId = (String) acct.OwnerId;
